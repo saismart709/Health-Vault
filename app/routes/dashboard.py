@@ -12,7 +12,7 @@ from ..auth import get_current_user
 from ..ai_engine import ai_engine
 from typing import Optional
 
-from ..main import BASE_DIR
+from ..config import BASE_DIR
 
 router = APIRouter()
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "templates"))

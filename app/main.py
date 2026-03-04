@@ -3,12 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from .database import engine, Base
 from .routes import auth, dashboard, vitals, medications, emergency
-import uvicorn
-
 import os
-
-# Base directory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from .config import BASE_DIR
 
 app = FastAPI(title="HealthVault AI")
 

@@ -8,7 +8,7 @@ from .dashboard import get_current_user_from_cookie
 from fastapi.templating import Jinja2Templates
 import random
 
-from ..main import BASE_DIR
+from ..config import BASE_DIR
 import os
 
 router = APIRouter()

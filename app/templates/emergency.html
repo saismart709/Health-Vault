@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency{% endblock %}
+
+{% block content %}
+<div class="page-title">Emergency Alert</div>
+<div class="page-sub">Immediate notification to emergency responders and family</div>
+
+<div class="card"
+    style="background: rgba(255, 77, 109, 0.05); border-color: var(--danger); padding: 50px; text-align: center;">
+    <div style="font-size: 60px; margin-bottom: 24px;">🚨</div>
+    <h1 style="font-family: var(--font-head); color: var(--danger); margin-bottom: 16px;">EMERGENCY TRIGGER</h1>
+    <p style="color: var(--muted); margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto;">
+        Triggering this alert will broadcast your real-time location, critical medical conditions, allergies, and last
+        known vitals to all your emergency contacts.
+    </p>
+
+    <form action="/emergency/trigger" method="post">
+        <button type="submit" class="btn"
+            style="background: var(--danger); color: white; padding: 24px 60px; font-size: 20px; border-radius: 50px; box-shadow: 0 10px 30px rgba(255, 77, 109, 0.4);">
+            BROADCAST ALERT NOW
+        </button>
+    </form>
+</div>
+
+{% if alert_sent %}
+<div class="card"
+    style="border-color: var(--success); background: rgba(34, 214, 138, 0.05); animation: slideIn 0.5s ease-out;">
+    <h3 style="color: var(--success); margin-bottom: 12px;">✓ ALERT BROADCASTED</h3>
+    <div style="font-size: 14px; line-height: 1.6;">
+        <p><strong>Recipients:</strong> {{ contacts }}</p>
+        <p><strong>Live Location:</strong> {{ location.lat }}, {{ location.lon }} (Simulated)</p>
+        <p><strong>Package:</strong> Medical ID, Allergies ({{ user.allergies or 'None' }}), Chronic Diseases ({{
+            user.chronic_diseases or 'None' }})</p>
+    </div>
+</div>
+{% endif %}
+
+{% if is_high_risk %}
+<div class="card"
+    style="background: rgba(255, 77, 109, 0.1); border: 2px solid var(--danger); animation: pulseAlert 2s infinite;">
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+        <span style="font-size: 32px;">⚠️</span>
+        <h2 style="color: var(--danger); margin: 0;">CRITICAL HEALTH RISK DETECTED</h2>
+    </div>
+    <p style="color: var(--text); font-weight: 500;">
+        Our AI analysis has identified a high health risk based on your recent vitals.
+        Please ensure your emergency contacts are up to date.
+    </p>
+    <p style="color: var(--muted); font-size: 13px;">
+        Adding a contact now will <strong>immediately notify them</strong> of your current status.
+    </p>
+</div>
+
+<style>
+    @keyframes pulseAlert {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 77, 109, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 15px rgba(255, 77, 109, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 77, 109, 0);
+        }
+    }
+</style>
+{% endif %}
+
+{% if request.query_params.get('contact_added') %}
+<div class="card" style="border-color: var(--success); background: rgba(34, 214, 138, 0.05); margin-bottom: 24px;">
+    <p style="color: var(--success); font-weight: 600; margin: 0;">✓ Contact added and notified of the health risk.</p>
+</div>
+{% endif %}
+
+<div class="card" {% if is_high_risk %}id="add-contact-section" style="border: 1px solid var(--accent);" {% endif %}>
+    <div class="card-title">➕ Add Emergency Contact</div>
+    <form action="/emergency/add-contact" method="post"
+        style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <input type="hidden" name="is_high_risk" value="{{ 'True' if is_high_risk else 'False' }}">
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="name" class="form-input" placeholder="e.g. Jane Doe" required>
+        </div>
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone" class="form-input" placeholder="e.g. +1 234 567 890" required>
+        </div>
+        <div class="form-group">
+            <label>Relationship</label>
+            <input type="text" name="relationship" class="form-input" placeholder="e.g. Spouse, Doctor" required>
+        </div>
+        <div class="form-group">
+            <label>Email (Optional)</label>
+            <input type="email" name="email" class="form-input" placeholder="e.g. jane@example.com">
+        </div>
+        <div style="grid-column: span 2;">
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Add Contact</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-title">👤 Your Emergency Contacts</div>
+    {% if not contacts_list %}
+    <p style="color: var(--muted); text-align: center; padding: 20px;">No contacts added yet. Please add someone who
+        should be notified in an emergency.</p>
+    {% endif %}
+    {% for contact in contacts_list %}
+    <div
+        style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div
+                style="width: 40px; height: 40px; background: var(--surface3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                👤
+            </div>
+            <div>
+                <div style="font-weight: 600; font-size: 14px;">{{ contact.name }}</div>
+                <div style="font-size: 11px; color: var(--muted);">{{ contact.relationship_type.upper() }} &nbsp;·&nbsp;
+                    {{ contact.phone }}</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <a href="tel:{{ contact.phone }}" class="badge badge-accent"
+                style="text-decoration: none; cursor: pointer;">📞 CALL</a>
+            <div class="badge" style="background: var(--surface3); color: var(--text);">Verified</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-group {
+        margin-bottom: 0px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        background: var(--surface3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(138, 79, 255, 0.2);
+    }
+
+    label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}

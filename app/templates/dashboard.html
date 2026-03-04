@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-title">Health Overview</div>
+<div class="page-sub">Welcome back, {{ user.full_name }} &nbsp;·&nbsp; <span style="color: var(--accent2);">🩸 {{
+        user.blood_group }}</span></div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">💊</div>
+        <div class="stat-label">Active Medicines</div>
+        <div class="stat-value">{{ medications|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🩺</div>
+        <div class="stat-label">Health Vitals</div>
+        <div class="stat-value">{{ vitals|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-label">Risk Level</div>
+        <div class="stat-value"
+            style="color: {% if risk.risk_level == 'High' %}var(--danger){% elif risk.risk_level == 'Medium' %}var(--warn){% else %}var(--success){% endif %};">
+            {{ risk.risk_level }}
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📑</div>
+        <div class="stat-label">Clinical Status</div>
+        <div class="stat-value"
+            style="font-size: 20px; color: {% if latest_report %}{% if latest_report.health_status == 'Critical' %}var(--danger){% elif latest_report.health_status == 'Needs Attention' %}var(--warn){% else %}var(--success){% endif %}{% else %}var(--muted){% endif %};">
+            {{ latest_report.health_status if latest_report else 'N/A' }}
+        </div>
+    </div>
+</div>
+
+{% if notifications %}
+<div class="notifications-section" style="margin-bottom: 32px;">
+    {% for notif in notifications %}
+    <div class="notif-card {% if notif.priority == 'Urgent' %}urgent{% endif %}"
+        style="background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid {% if notif.priority == 'Urgent' %}var(--danger){% else %}var(--accent){% endif %}; border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; align-items: start; gap: 16px; animation: slideInNotif 0.5s ease-out;">
+        <div style="font-size: 24px;">{% if notif.type == 'HighRisk' %}🚨{% else %}🔔{% endif %}</div>
+        <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span
+                    style="font-weight: 700; font-size: 14px; color: {% if notif.priority == 'Urgent' %}var(--danger){% else %}var(--text){% endif %};">
+                    {{ notif.type.upper() }} ALERT
+                </span>
+                <span style="font-size: 11px; color: var(--muted);">{{ notif.timestamp.strftime('%H:%M') }}</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text); margin-bottom: 8px;">{{ notif.message }}</p>
+            {% if notif.family_notified %}
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="badge badge-accent" style="font-size: 10px; padding: 2px 8px;">✓ Family Notified</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    @keyframes slideInNotif {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .notif-card.urgent {
+        background: rgba(255, 77, 109, 0.05);
+        box-shadow: 0 4px 20px rgba(255, 77, 109, 0.1);
+    }
+</style>
+{% endif %}
+
+<div class="two-col">
+    <div class="card">
+        <div class="card-title">📉 Adherence Trend</div>
+        <div style="height: 250px;">
+            <canvas id="adherenceChart"></canvas>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title">⚠️ Risk Analysis</div>
+        <div style="display: flex; gap: 20px; align-items: start;">
+            <div style="width: 120px; height: 120px; position: relative;">
+                <canvas id="riskGauge"></canvas>
+                <div
+                    style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 24px; font-weight: 800;">
+                    {{ risk.risk_score }}
+                </div>
+            </div>
+            <div style="flex: 1;">
+                <p
+                    style="font-size: 14px; font-weight: 700; color: {% if risk.risk_level == 'High' %}var(--danger){% elif risk.risk_level == 'Medium' %}var(--warn){% else %}var(--success){% endif %}; margin-bottom: 8px;">
+                    {{ risk.risk_level }} RISK
+                </p>
+                <ul style="list-style: none; font-size: 13px; color: var(--muted);">
+                    {% for reason in risk.reasons %}
+                    <li style="margin-bottom: 6px;">• {{ reason }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('adherenceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Adherence',
+                data: [100, 80, 100, 90, 100, 100, 85],
+                borderColor: '#00e5b8',
+                backgroundColor: 'rgba(0, 229, 184, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { display: false },
+                x: { grid: { color: '#1f3050' }, ticks: { color: '#5a7a9a' } }
+            }
+        }
+    });
+
+    const gaugeCtx = document.getElementById('riskGauge').getContext('2d');
+    new Chart(gaugeCtx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [{{ risk.risk_score }}, 100 - {{ risk.risk_score }}],
+        backgroundColor: [
+            '{% if risk.risk_level == 'High' %}#ff4d6d{% elif risk.risk_level == 'Medium' %}#ffb830{% else %}#22d68a{% endif %}',
+            '#172034'
+        ],
+        borderWidth: 0,
+        circumference: 180,
+        rotation: 270,
+        cutout: '80%'
+    }]
+    },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { tooltip: { enabled: false } }
+    }
+});
+</script>
+{% endblock %}

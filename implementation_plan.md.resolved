@@ -1,0 +1,35 @@
+# Implementation Plan: HealthVault AI (Cloning standalone HTML)
+
+Clone the design and functionality of the "healthvault_standalone" HTML into a fully functional Python-based system using FastAPI and Jinja2.
+
+## Proposed Changes
+
+### 1. Design System (Clone)
+- **[MODIFY] [styles.css](file:///c:/Users/n.saiteja/Desktop/health_vault/app/static/css/styles.css)**: Replicate the 'Syne' and 'DM Sans' typography, glassmorphism, and color palette (`--bg:#080e1a`, `--accent:#00e5b8`).
+- **[MODIFY] [base.html](file:///c:/Users/n.saiteja/Desktop/health_vault/app/templates/base.html)**: Implement the sidebar-based layout from the target HTML.
+
+### 2. Dashboard & Charts
+- **[MODIFY] [dashboard.html](file:///c:/Users/n.saiteja/Desktop/health_vault/app/templates/dashboard.html)**: Add Adherence Trend chart (using Chart.js via template) and Risk Gauge.
+- **[MODIFY] [ai_engine.py](file:///c:/Users/n.saiteja/Desktop/health_vault/app/ai_engine.py)**: Update risk scoring logic to match the target's `calcRisk` function.
+
+### 3. AI / ML Engine
+- **[NEW] [ai_engine.py](file:///c:/Users/n.saiteja/Desktop/health_vault/app/ai_engine.py)**: Logic for analyzing health vitals and predicting risk scores using scikit-learn.
+
+### 4. Application Logic
+- **[NEW] [auth.py](file:///c:/Users/n.saiteja/Desktop/health_vault/app/auth.py)**: Security, password hashing, and session/token handling.
+- **[NEW] [routes/](file:///c:/Users/n.saiteja/Desktop/health_vault/app/routes/)**: Separate route files for [auth.py](file:///c:/Users/n.saiteja/Desktop/health_vault/app/auth.py), [dashboard.py](file:///c:/Users/n.saiteja/Desktop/health_vault/app/routes/dashboard.py), `records.py`, and [emergency.py](file:///c:/Users/n.saiteja/Desktop/health_vault/app/routes/emergency.py).
+
+### 5. Frontend (Python Templates)
+- **[NEW] [templates/](file:///c:/Users/n.saiteja/Desktop/health_vault/app/templates/)**: Jinja2 templates for all views.
+- **[NEW] [static/css/styles.css](file:///c:/Users/n.saiteja/Desktop/health_vault/app/static/css/styles.css)**: A premium, modern CSS-only stylesheet (no JS).
+
+## Verification Plan
+
+### Automated Tests
+- Run `pytest` for testing authentication, AI risk scores, and record creation.
+- Simulated emergency triggers to verify email/notification logic.
+
+### Manual Verification
+- Test the dashboard layout and responsiveness.
+- Verify that abnormal vitals trigger appropriate AI risk alerts.
+- Check that medication reminders appear correctly on the dashboard.

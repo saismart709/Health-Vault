@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Database
+health_vault.db
+
+# Logs
+*.log
+startup_all.txt
+startup_all_cmd.txt
+startup_error_captured.txt
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/

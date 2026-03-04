@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="page-title">My Profile</div>
+<div class="page-sub">Manage your personal information and health preferences</div>
+
+<div class="card"
+    style="background: linear-gradient(135deg, var(--surface2) 0%, var(--surface) 100%); border-radius: 18px; padding: 28px; position: relative; overflow: hidden;">
+    <div style="display: flex; align-items: center; gap: 24px;">
+        <div
+            style="width: 80px; height: 80px; border-radius: 18px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 32px; color: #080e1a; border: 2px solid var(--border2);">
+            {{ user.full_name[0] }}
+        </div>
+        <div style="flex: 1;">
+            <div style="font-family: var(--font-head); font-size: 24px; font-weight: 800; margin-bottom: 4px;">{{
+                user.full_name }}</div>
+            <div style="display: flex; gap: 8px;">
+                <span class="badge badge-accent">{{ user.role.upper() }}</span>
+                <span class="badge badge-blue">🩸 {{ user.blood_group }}</span>
+            </div>
+        </div>
+        <button class="btn" style="border: 1px solid var(--border2); color: var(--text);"
+            onclick="document.getElementById('editProfileForm').style.display='block'">Edit Profile</button>
+    </div>
+</div>
+
+<div id="editProfileForm" class="card" style="display: none; border-color: var(--accent);">
+    <div class="card-title">Update Information</div>
+    <form action="/profile/update" method="post">
+        <div class="two-col">
+            <div>
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">FULL NAME</label>
+                <input class="form-input" type="text" name="full_name" value="{{ user.full_name }}" required>
+            </div>
+            <div>
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">PHONE</label>
+                <input class="form-input" type="text" name="phone" value="{{ user.phone or '' }}"
+                    placeholder="+1-xxx-xxx-xxxx">
+            </div>
+        </div>
+        <div class="two-col">
+            <div>
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">AGE</label>
+                <input class="form-input" type="number" name="age" value="{{ user.age }}" required>
+            </div>
+            <div>
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">GENDER</label>
+                <select class="form-input" name="gender">
+                    <option value="male" {% if user.gender=='male' %}selected{% endif %}>Male</option>
+                    <option value="female" {% if user.gender=='female' %}selected{% endif %}>Female</option>
+                    <option value="other" {% if user.gender=='other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+        </div>
+        <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">ADDRESS</label>
+        <textarea class="form-input" name="address"
+            style="height: 80px; resize: none;">{{ user.address or '' }}</textarea>
+
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn" style="background: var(--surface3); color: var(--text);"
+                onclick="document.getElementById('editProfileForm').style.display='none'">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div class="two-col" style="margin-top: 24px;">
+    <div class="card">
+        <div class="card-title">📋 Medical Profile</div>
+        <div style="margin-bottom: 16px;">
+            <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">ALLERGIES</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                {% if user.allergies %}
+                {% for allergy in user.allergies.split(',') %}
+                <span class="badge" style="background: rgba(255,77,109,0.1); color: var(--danger);">{{ allergy.strip()
+                    }}</span>
+                {% endfor %}
+                {% else %}
+                <span style="color: var(--muted); font-size: 13px;">None reported</span>
+                {% endif %}
+            </div>
+        </div>
+        <div>
+            <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">CHRONIC CONDITIONS</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                {% if user.chronic_diseases %}
+                {% for condition in user.chronic_diseases.split(',') %}
+                <span class="badge" style="background: rgba(199,125,255,0.1); color: var(--accent3);">{{
+                    condition.strip() }}</span>
+                {% endfor %}
+                {% else %}
+                <span style="color: var(--muted); font-size: 13px;">None reported</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">⚙️ Account Settings</div>
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border);">
+            <div>
+                <div style="font-size: 14px; font-weight: 500;">Email Reminders</div>
+                <div style="font-size: 11px; color: var(--muted);">Receive medication alerts via email</div>
+            </div>
+            <div style="width: 40px; height: 20px; background: var(--accent); border-radius: 20px; position: relative;">
+                <div
+                    style="width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; right: 2px;">
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+            <div>
+                <div style="font-size: 14px; font-weight: 500; color: var(--danger);">Danger Zone</div>
+                <div style="font-size: 11px; color: var(--muted);">Permanently delete your account</div>
+            </div>
+            <a href="/profile/delete" class="btn"
+                style="color: var(--danger); font-size: 12px; border: 1px solid rgba(255,77,109,0.2);"
+                onclick="return confirm('Are you sure you want to permanently delete your account? This action cannot be undone.')">Delete
+                Account</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

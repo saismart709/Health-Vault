@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Medical Reports{% endblock %}
+
+{% block content %}
+<div class="page-title">Medical Reports</div>
+<div class="page-sub">Upload and AI-analyze health documents & images</div>
+
+<div class="card">
+    <div id="uploadPlaceholder"
+        style="border: 2px dashed var(--border); border-radius: var(--radius); padding: 50px; text-align: center; cursor: pointer; transition: all 0.2s;"
+        onclick="document.getElementById('uploadPanel').style.display='block'; this.style.display='none'"
+        onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size: 40px; margin-bottom: 16px;">📂</div>
+        <div style="font-weight: 700; font-size: 16px; margin-bottom: 8px;">Upload Medical Files</div>
+        <div style="color: var(--muted); font-size: 13px; margin-bottom: 20px;">Click to open upload form</div>
+    </div>
+
+    <div id="uploadPanel" style="display: none;">
+        <div class="card-title">New Report Upload</div>
+        <form action="/reports/upload" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">REPORT TITLE</label>
+                <input class="form-input" type="text" name="title" placeholder="e.g. Annual Blood Test 2024" required>
+            </div>
+            <div class="form-group">
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">SELECT FILE</label>
+                <input class="form-input" type="file" name="file" required>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary">Analyze with AI →</button>
+                <button type="button" class="btn" style="background: var(--surface3); color: var(--text);"
+                    onclick="document.getElementById('uploadPanel').style.display='none'; document.getElementById('uploadPlaceholder').style.display='block'">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">Analysis History</div>
+    {% if medical_records %}
+    {% for report in medical_records %}
+    <div
+        style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div
+                    style="width: 40px; height: 40px; background: rgba(0,229,184,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                    📄
+                </div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">{{ report.title }}</div>
+                    <div style="font-size: 11px; color: var(--muted);">{{ report.date_uploaded.strftime('%Y-%m-%d') }}
+                        &nbsp;·&nbsp; <span
+                            style="color: {% if report.health_status == 'Critical' %}var(--danger){% elif report.health_status == 'Needs Attention' %}var(--warn){% else %}var(--success){% endif %};">{{
+                            report.health_status.upper() }}</span></div>
+                </div>
+            </div>
+            <a href="/reports/delete/{{ report.id }}" class="btn"
+                style="color: var(--danger); font-size: 12px; border: 1px solid rgba(255,77,109,0.1); padding: 5px 10px;">Remove</a>
+        </div>
+
+        <div
+            style="background: var(--surface3); padding: 12px; border-radius: 8px; font-size: 13px; color: var(--text); border-left: 3px solid var(--accent);">
+            <strong>AI Insight:</strong> {{ report.analysis_result }}
+        </div>
+
+        <div style="margin-top: 12px; display: flex; justify-content: flex-end; gap: 10px;">
+            <a href="{{ report.file_path }}" target="_blank" class="btn"
+                style="font-size: 11px; padding: 6px 12px; border: 1px solid var(--border2); color: var(--muted2);">View
+                Original</a>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: var(--muted);">
+        <div style="font-size: 40px; margin-bottom: 12px;">📊</div>
+        <div>No medical reports analyzed yet.</div>
+        <div style="font-size: 12px; margin-top: 8px;">Upload a file to see AI health insights.</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

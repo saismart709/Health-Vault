@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Medications{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
+    <div>
+        <div class="page-title">Medicines</div>
+        <div class="page-sub">Prescriptions & reminder schedule</div>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('addMedPanel').style.display='block'">+ Add
+        Medicine</button>
+</div>
+
+<div id="addMedPanel" class="card" style="display: none; background: var(--surface2); border-color: var(--accent);">
+    <div class="card-title">New Medicine</div>
+    <form action="/medications/add" method="post">
+        <div class="two-col">
+            <div>
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">MEDICINE NAME</label>
+                <input class="form-input" type="text" name="name" placeholder="e.g. Metformin" required>
+            </div>
+            <div>
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">DOSAGE</label>
+                <input class="form-input" type="text" name="dosage" placeholder="e.g. 500mg" required>
+            </div>
+        </div>
+        <div class="two-col">
+            <div>
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">FREQUENCY</label>
+                <select class="form-input" name="frequency">
+                    <option value="Daily">Daily</option>
+                    <option value="Twice Daily">Twice Daily</option>
+                    <option value="Weekly">Weekly</option>
+                </select>
+            </div>
+            <div>
+                <label class="page-sub" style="display:block; margin-bottom:5px; font-size:11px;">DURATION</label>
+                <input class="form-input" type="text" name="duration" placeholder="e.g. Chronic" required>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary">Save Medicine</button>
+            <button type="button" class="btn" style="background: var(--surface3); color: var(--text);"
+                onclick="document.getElementById('addMedPanel').style.display='none'">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase;">
+                <th style="padding-bottom: 12px; border-bottom: 1px solid var(--border);">Medicine</th>
+                <th style="padding-bottom: 12px; border-bottom: 1px solid var(--border);">Dosage</th>
+                <th style="padding-bottom: 12px; border-bottom: 1px solid var(--border);">Schedule</th>
+                <th style="padding-bottom: 12px; border-bottom: 1px solid var(--border);">Duration</th>
+                <th style="padding-bottom: 12px; border-bottom: 1px solid var(--border);">Status</th>
+                <th style="padding-bottom: 12px; border-bottom: 1px solid var(--border);"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for med in medications %}
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 16px 0; font-weight: 600;">{{ med.name }}</td>
+                <td style="padding: 16px 0;"><span class="badge badge-blue">{{ med.dosage }}</span></td>
+                <td style="padding: 16px 0; font-size: 13px; color: var(--muted);">{{ med.frequency }}</td>
+                <td style="padding: 16px 0; font-size: 13px; color: var(--muted);">{{ med.duration }}</td>
+                <td style="padding: 16px 0;"><span class="badge badge-accent">Active</span></td>
+                <td style="padding: 16px 0; text-align: right;">
+                    <a href="/medications/delete/{{ med.id }}" class="btn"
+                        style="color: var(--danger); font-size: 12px; border: 1px solid rgba(255,77,109,0.2);">Remove</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

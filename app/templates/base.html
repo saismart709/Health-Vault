@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthVault AI - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <a href="/" class="logo">✦ HealthVault</a>
+            </div>
+
+            <nav class="nav-links">
+                <a href="/" class="nav-item {% if request.url.path == '/' %}active{% endif %}">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/medications" class="nav-item {% if '/medications' in request.url.path %}active{% endif %}">
+                    <i>💊</i> Medications
+                </a>
+                <a href="/vitals" class="nav-item {% if '/vitals' in request.url.path %}active{% endif %}">
+                    <i>🩺</i> Vitals
+                </a>
+                <a href="/reports" class="nav-item {% if '/reports' in request.url.path %}active{% endif %}">
+                    <i>📋</i> Reports
+                </a>
+                <a href="/profile" class="nav-item {% if '/profile' in request.url.path %}active{% endif %}">
+                    <i>👤</i> Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-foot">
+                <a href="/emergency" class="nav-item btn-emergency">
+                    <i>⚠️</i> EMERGENCY
+                </a>
+                <a href="/logout" class="nav-item" style="color: var(--danger);">
+                    <i>🚪</i> Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+
+</html>

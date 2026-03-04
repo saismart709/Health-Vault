@@ -146,7 +146,7 @@ async def upload_report(
         return RedirectResponse(url="/login")
     
     # Save file
-    upload_dir = "app/static/uploads"
+    upload_dir = os.path.join(BASE_DIR, "app", "static", "uploads")
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
     

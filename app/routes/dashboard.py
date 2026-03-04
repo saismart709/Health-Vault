@@ -12,8 +12,10 @@ from ..auth import get_current_user
 from ..ai_engine import ai_engine
 from typing import Optional
 
+from ..main import BASE_DIR
+
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "templates"))
 
 async def get_current_user_from_cookie(request: Request, db: AsyncSession = Depends(get_db)):
     token = request.cookies.get("access_token")

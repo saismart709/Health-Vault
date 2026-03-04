@@ -5,10 +5,15 @@ from .database import engine, Base
 from .routes import auth, dashboard, vitals, medications, emergency
 import uvicorn
 
+import os
+
+# Base directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 app = FastAPI(title="HealthVault AI")
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "app", "static")), name="static")
 
 # Include routers
 app.include_router(auth.router)
@@ -19,10 +24,14 @@ app.include_router(emergency.router, prefix="/emergency", tags=["Emergency"])
 
 @app.on_event("startup")
 async def startup():
-    # Initialize database
-    async with engine.begin() as conn:
-        # await conn.run_sync(Base.metadata.drop_all) # Refresh for report analysis fields
-        await conn.run_sync(Base.metadata.create_all)
+    # Initialize database - protected for read-only environments
+    try:
+        async with engine.begin() as conn:
+            # await conn.run_sync(Base.metadata.drop_all) # Refresh for report analysis fields
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        print(f"Database initialization skipped or failed: {e}")
+        return
     
     # Create demo user if not exists
     from .database import SessionLocal

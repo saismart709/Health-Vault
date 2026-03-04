@@ -7,8 +7,11 @@ from ..models import Medication
 from .dashboard import get_current_user_from_cookie
 from fastapi.templating import Jinja2Templates
 
+from ..main import BASE_DIR
+import os
+
 router = APIRouter(prefix="/medications")
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "templates"))
 
 @router.get("/")
 async def medications_page(request: Request, db: AsyncSession = Depends(get_db)):

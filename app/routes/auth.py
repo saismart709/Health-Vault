@@ -7,8 +7,11 @@ from ..database import get_db
 from ..models import User
 from ..auth import get_password_hash, verify_password, create_access_token
 
+import os
+from ..main import BASE_DIR
+
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "templates"))
 
 @router.get("/login")
 async def login_page(request: Request):
